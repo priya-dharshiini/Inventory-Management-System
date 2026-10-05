@@ -1,0 +1,174 @@
+<div class="product-form-container">
+
+  <div class="form-card">
+
+    <div class="form-header">
+
+      <h1>
+        {{ isEditMode ? 'Edit Product' : 'Add Product' }}
+      </h1>
+
+      <p>
+        {{ isEditMode
+          ? 'Update product details'
+          : 'Enter product details'
+        }}
+      </p>
+
+    </div>
+
+    <form
+      [formGroup]="productForm"
+      (ngSubmit)="submitProduct()">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            Product Name
+          </label>
+
+          <input
+            type="text"
+            formControlName="productName"
+            placeholder="Enter product name">
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Product Type
+          </label>
+
+          <input
+            type="text"
+            formControlName="productType"
+            placeholder="Enter product type">
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Brand
+          </label>
+
+          <input
+            type="text"
+            formControlName="brand"
+            placeholder="Enter brand">
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Model
+          </label>
+
+          <input
+            type="text"
+            formControlName="model"
+            placeholder="Enter model">
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Serial Number
+          </label>
+
+          <input
+            type="text"
+            formControlName="serialNumber"
+            placeholder="Enter serial number">
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Purchase Date
+          </label>
+
+          <input
+            type="date"
+            formControlName="purchaseDate">
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Price
+          </label>
+
+          <input
+            type="number"
+            formControlName="price"
+            placeholder="Enter price">
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Status
+          </label>
+
+          <select formControlName="status">
+
+            <option value="AVAILABLE">
+              AVAILABLE
+            </option>
+
+            <option value="ASSIGNED">
+              ASSIGNED
+            </option>
+
+            <option value="MAINTENANCE">
+              MAINTENANCE
+            </option>
+
+            <option value="DAMAGED">
+              DAMAGED
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+      <div class="button-container">
+
+        <button
+          type="button"
+          class="cancel-button"
+          (click)="cancel()">
+
+          Cancel
+
+        </button>
+
+        <button
+          type="submit"
+          class="submit-button">
+
+          {{ isEditMode
+            ? 'Update Product'
+            : 'Add Product'
+          }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

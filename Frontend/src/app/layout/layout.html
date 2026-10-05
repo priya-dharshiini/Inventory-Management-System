@@ -1,0 +1,167 @@
+<div class="app-layout">
+
+  <aside class="sidebar">
+
+    <div class="sidebar-logo">
+
+      <div class="logo-box">
+        <span>IM</span>
+      </div>
+
+      <div class="logo-text">
+        <h1>Inventory</h1>
+        <p>Management System</p>
+      </div>
+
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <a
+        routerLink="/home"
+        class="nav-item"
+      >
+        <span class="nav-icon">⌂</span>
+        <span class="nav-text">Home</span>
+      </a>
+
+      @if (authService.canView('PRODUCTS')) {
+      <a
+        routerLink="/products"
+        class="nav-item"
+      >
+        <span class="nav-icon">▣</span>
+        <span class="nav-text">Product Management</span>
+      </a>
+      }
+
+      @if (authService.canView('EMPLOYEES')) {
+      <a
+        routerLink="/employees"
+        class="nav-item"
+      >
+        <span class="nav-icon">♙</span>
+        <span class="nav-text">Employee Management</span>
+      </a>
+      }
+
+      @if (authService.canView('ASSET_ASSIGNMENT')) {
+      <a
+        routerLink="/asset-assignment"
+        class="nav-item"
+      >
+        <span class="nav-icon">▤</span>
+        <span class="nav-text">Asset Assignment</span>
+      </a>
+      }
+
+      @if (authService.canView('ASSIGNMENT_REGISTER')) {
+      <a
+        routerLink="/assignment-register"
+        class="nav-item"
+      >
+        <span class="nav-icon">▤</span>
+        <span class="nav-text">Assignment Register</span>
+      </a>
+      }
+
+      @if (authService.canView('MASTER_DATA')) {
+      <a
+        routerLink="/masters"
+        class="nav-item"
+      >
+        <span class="nav-icon">☰</span>
+        <span class="nav-text">Master Data</span>
+      </a>
+      }
+
+      @if (isAdmin) {
+        <a
+          routerLink="/users"
+          class="nav-item"
+        >
+          <span class="nav-icon">☺</span>
+          <span class="nav-text">User Management</span>
+        </a>
+
+        <a
+          routerLink="/role-access"
+          class="nav-item"
+        >
+          <span class="nav-icon">⚿</span>
+          <span class="nav-text">Role Access</span>
+        </a>
+      }
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+      <button
+        type="button"
+        class="logout-button"
+        (click)="logout()"
+      >
+
+        <span class="logout-icon">↪</span>
+
+        <span>Logout</span>
+
+      </button>
+
+    </div>
+
+  </aside>
+
+  <main class="main-content">
+
+    <header class="top-header">
+
+      <div class="header-left">
+
+        <div class="header-icon">
+          IM
+        </div>
+
+        <div>
+          <h2>Inventory Management</h2>
+          <p>Manage your inventory efficiently</p>
+        </div>
+
+      </div>
+
+      <div class="header-right">
+
+        <div class="user-profile">
+
+          <div class="user-avatar">
+            {{ avatarLetter() }}
+          </div>
+
+          <div class="user-info">
+
+            <strong>
+              {{ username }}
+            </strong>
+
+            <span>
+              {{ role }}
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </header>
+
+    <section class="page-content">
+
+      <router-outlet></router-outlet>
+
+    </section>
+
+  </main>
+
+</div>

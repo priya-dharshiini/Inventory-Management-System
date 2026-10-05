@@ -1,0 +1,316 @@
+<div class="employee-container">
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>Employee Management</h1>
+
+      <p>
+        Employee Details
+      </p>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="search-toggle-button"
+        title="Search employees"
+        (click)="runSearch()">
+
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+          <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+
+        <span>Search</span>
+
+      </button>
+
+      @if (isAdmin) {
+        <button
+          type="button"
+          class="add-button"
+          [disabled]="isAddingNew || editingId !== null"
+          (click)="addEmployee()">
+
+          + Add Employee
+
+        </button>
+      }
+
+    </div>
+
+  </div>
+
+  <div class="table-container">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>ID</th>
+
+          <th>Employee Name</th>
+
+          <th>Email</th>
+
+          <th>Phone</th>
+
+          <th>Department</th>
+
+          <th>Designation</th>
+
+          <th>Status</th>
+
+          <th>Actions</th>
+
+        </tr>
+
+        <tr class="filter-row">
+
+          <th></th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.employeeName" (input)="onSearchInput()" placeholder="Search name" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.email" (input)="onSearchInput()" placeholder="Search email" />
+          </th>
+
+          <th></th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.department" (input)="onSearchInput()" placeholder="Search dept" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.designation" (input)="onSearchInput()" placeholder="Search designation" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.status" (input)="onSearchInput()" placeholder="Search status" />
+          </th>
+
+          <th></th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        @if (isAddingNew) {
+
+          <tr class="editing-row" [class.row-invalid]="!isNewRowValid()">
+
+            <td>New</td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="newRowErrors.employeeName" [(ngModel)]="newRow.employeeName" (input)="onNewRowChange()" placeholder="Employee Name *" />
+              @if (newRowErrors.employeeName) { <div class="field-error">{{ newRowErrors.employeeName }}</div> }
+            </td>
+
+            <td>
+              <input type="email" class="inline-input" [class.field-invalid]="newRowErrors.email" [(ngModel)]="newRow.email" (input)="onNewRowChange()" placeholder="Email *" />
+              @if (newRowErrors.email) { <div class="field-error">{{ newRowErrors.email }}</div> }
+            </td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="newRowErrors.phone" [(ngModel)]="newRow.phone" (input)="onNewRowChange()" placeholder="Phone (10 digits) *" />
+              @if (newRowErrors.phone) { <div class="field-error">{{ newRowErrors.phone }}</div> }
+            </td>
+
+            <td>
+              <select class="inline-input" [class.field-invalid]="newRowErrors.department" [(ngModel)]="newRow.department" (change)="onNewRowChange()">
+                <option value="">Select *</option>
+                @for (opt of departmentOptions; track opt.id) {
+                  <option [value]="opt.value">{{ opt.value }}</option>
+                }
+              </select>
+              @if (newRowErrors.department) { <div class="field-error">{{ newRowErrors.department }}</div> }
+            </td>
+
+            <td>
+              <select class="inline-input" [class.field-invalid]="newRowErrors.designation" [(ngModel)]="newRow.designation" (change)="onNewRowChange()">
+                <option value="">Select *</option>
+                @for (opt of designationOptions; track opt.id) {
+                  <option [value]="opt.value">{{ opt.value }}</option>
+                }
+              </select>
+              @if (newRowErrors.designation) { <div class="field-error">{{ newRowErrors.designation }}</div> }
+            </td>
+
+            <td>
+              <select class="inline-input" [class.field-invalid]="newRowErrors.status" [(ngModel)]="newRow.status" (change)="onNewRowChange()">
+                <option value="">Select *</option>
+                @for (opt of statusOptions; track opt.id) {
+                  <option [value]="opt.value">{{ opt.value }}</option>
+                }
+              </select>
+              @if (newRowErrors.status) { <div class="field-error">{{ newRowErrors.status }}</div> }
+            </td>
+
+            <td class="actions">
+              <button type="button" class="save-button" [disabled]="!isNewRowValid()" (click)="saveNewEmployee()">Save</button>
+              <button type="button" class="cancel-button" (click)="cancelAddEmployee()">Cancel</button>
+            </td>
+
+          </tr>
+
+        }
+
+        @for (
+          employee of employees;
+          track employee.id
+        ) {
+
+          <tr [class.editing-row]="editingId === employee.id" [class.row-invalid]="editingId === employee.id && !isEditRowValid()">
+
+            @if (editingId === employee.id) {
+
+              <td>{{ employee.id }}</td>
+
+              <td>
+                <input type="text" class="inline-input" [class.field-invalid]="editRowErrors.employeeName" [(ngModel)]="editRow.employeeName" (input)="onEditRowChange()" />
+                @if (editRowErrors.employeeName) { <div class="field-error">{{ editRowErrors.employeeName }}</div> }
+              </td>
+
+              <td>
+                <input type="email" class="inline-input" [class.field-invalid]="editRowErrors.email" [(ngModel)]="editRow.email" (input)="onEditRowChange()" />
+                @if (editRowErrors.email) { <div class="field-error">{{ editRowErrors.email }}</div> }
+              </td>
+
+              <td>
+                <input type="text" class="inline-input" [class.field-invalid]="editRowErrors.phone" [(ngModel)]="editRow.phone" (input)="onEditRowChange()" />
+                @if (editRowErrors.phone) { <div class="field-error">{{ editRowErrors.phone }}</div> }
+              </td>
+
+              <td>
+                <select class="inline-input" [class.field-invalid]="editRowErrors.department" [(ngModel)]="editRow.department" (change)="onEditRowChange()">
+                  <option value="">Select *</option>
+                  @for (opt of departmentOptions; track opt.id) {
+                    <option [value]="opt.value">{{ opt.value }}</option>
+                  }
+                </select>
+                @if (editRowErrors.department) { <div class="field-error">{{ editRowErrors.department }}</div> }
+              </td>
+
+              <td>
+                <select class="inline-input" [class.field-invalid]="editRowErrors.designation" [(ngModel)]="editRow.designation" (change)="onEditRowChange()">
+                  <option value="">Select *</option>
+                  @for (opt of designationOptions; track opt.id) {
+                    <option [value]="opt.value">{{ opt.value }}</option>
+                  }
+                </select>
+                @if (editRowErrors.designation) { <div class="field-error">{{ editRowErrors.designation }}</div> }
+              </td>
+
+              <td>
+                <select class="inline-input" [class.field-invalid]="editRowErrors.status" [(ngModel)]="editRow.status" (change)="onEditRowChange()">
+                  <option value="">Select *</option>
+                  @for (opt of statusOptions; track opt.id) {
+                    <option [value]="opt.value">{{ opt.value }}</option>
+                  }
+                </select>
+                @if (editRowErrors.status) { <div class="field-error">{{ editRowErrors.status }}</div> }
+              </td>
+
+              <td class="actions">
+                <button type="button" class="save-button" [disabled]="!isEditRowValid()" (click)="saveEditEmployee(employee.id)">Save</button>
+                <button type="button" class="cancel-button" (click)="cancelEdit()">Cancel</button>
+              </td>
+
+            } @else {
+
+              <td>
+                {{ employee.id }}
+              </td>
+
+              <td>
+                {{ employee.employeeName }}
+              </td>
+
+              <td>
+                {{ employee.email }}
+              </td>
+
+              <td>
+                {{ employee.phone }}
+              </td>
+
+              <td>
+                {{ employee.department }}
+              </td>
+
+              <td>
+                {{ employee.designation }}
+              </td>
+
+              <td>
+
+                <span
+                  class="status"
+                  [class.active]="employee.status === 'ACTIVE'"
+                  [class.inactive]="employee.status === 'INACTIVE'">
+
+                  {{ employee.status }}
+
+                </span>
+
+              </td>
+
+              <td class="actions">
+
+                @if (isAdmin) {
+                  <button
+                    type="button"
+                    class="edit-button"
+                    [disabled]="isAddingNew || (editingId !== null && editingId !== employee.id)"
+                    (click)="editEmployee(employee)">
+
+                    Edit
+
+                  </button>
+
+                  <button
+                    type="button"
+                    class="delete-button"
+                    [disabled]="isAddingNew || editingId !== null"
+                    (click)="deleteEmployee(employee.id)">
+
+                    Delete
+
+                  </button>
+                }
+
+              </td>
+
+            }
+
+          </tr>
+
+        }
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  @if (employees.length === 0 && !isAddingNew) {
+
+    <div class="no-data">
+
+      No employees found.
+
+    </div>
+
+  }
+
+</div>

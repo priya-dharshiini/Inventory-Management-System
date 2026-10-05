@@ -1,0 +1,73 @@
+<div class="access-container">
+
+  <div class="page-header">
+    <div>
+      <h1>Role Access</h1>
+      <p>Choose which screens each role can open and change</p>
+    </div>
+
+    <button type="button" class="save-main-button" [disabled]="!hasChanges || saving" (click)="save()">
+      {{ saving ? 'Saving...' : 'Save Changes' }}
+    </button>
+  </div>
+
+  <div class="info-note">
+    <strong>View</strong> lets a role open the screen and see its data.
+    <strong>Edit</strong> also lets them add, change and delete.
+    Admin always has full access. User Management and Role Access are Admin-only.
+  </div>
+
+  @if (loading) {
+    <div class="no-data">Loading...</div>
+  } @else {
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2" class="screen-col">Screen</th>
+            @for (role of roles; track role) {
+              <th colspan="2" class="role-head">
+                {{ roleLabel(role) }}
+                @if (isLocked(role)) { <span class="locked-tag">Full access</span> }
+              </th>
+            }
+          </tr>
+          <tr class="sub-head">
+            @for (role of roles; track role) {
+              <th class="check-col">View</th>
+              <th class="check-col">Edit</th>
+            }
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (screen of screens; track screen) {
+            <tr>
+              <td class="screen-name">{{ screenLabel(screen) }}</td>
+
+              @for (role of roles; track role) {
+                <td class="check-cell">
+                  <input
+                    type="checkbox"
+                    [checked]="canView(role, screen)"
+                    [disabled]="isLocked(role)"
+                    (change)="toggleView(role, screen, $any($event.target).checked)" />
+                </td>
+                <td class="check-cell">
+                  <input
+                    type="checkbox"
+                    [checked]="canEdit(role, screen)"
+                    [disabled]="isLocked(role)"
+                    (change)="toggleEdit(role, screen, $any($event.target).checked)" />
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  }
+
+</div>

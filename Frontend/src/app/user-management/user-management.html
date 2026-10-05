@@ -1,0 +1,122 @@
+<div class="user-container">
+
+  <div class="page-header">
+    <div>
+      <h1>User Management</h1>
+      <p>Create and manage login accounts and roles</p>
+    </div>
+
+    <button type="button" class="add-button" [disabled]="isAddingNew || editingId !== null" (click)="addUser()">
+      + Add User
+    </button>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Password</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        @if (isAddingNew) {
+          <tr class="editing-row" [class.row-invalid]="!isNewRowValid()">
+            <td>New</td>
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="newRowErrors.username" [(ngModel)]="newRow.username" (input)="onNewRowChange()" placeholder="Username *" />
+              @if (newRowErrors.username) { <div class="field-error">{{ newRowErrors.username }}</div> }
+            </td>
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="newRowErrors.name" [(ngModel)]="newRow.name" (input)="onNewRowChange()" placeholder="Name *" />
+              @if (newRowErrors.name) { <div class="field-error">{{ newRowErrors.name }}</div> }
+            </td>
+            <td>
+              <input type="email" class="inline-input" [class.field-invalid]="newRowErrors.email" [(ngModel)]="newRow.email" (input)="onNewRowChange()" placeholder="Email *" />
+              @if (newRowErrors.email) { <div class="field-error">{{ newRowErrors.email }}</div> }
+            </td>
+            <td>
+              <input type="password" class="inline-input" [class.field-invalid]="newRowErrors.password" [(ngModel)]="newRow.password" (input)="onNewRowChange()" placeholder="Password *" />
+              @if (newRowErrors.password) { <div class="field-error">{{ newRowErrors.password }}</div> }
+            </td>
+            <td>
+              <select class="inline-input" [(ngModel)]="newRow.role" (change)="onNewRowChange()">
+                <option value="ADMIN">Admin</option>
+                <option value="EMPLOYEE">Employee</option>
+              </select>
+            </td>
+            <td class="actions">
+              <button type="button" class="save-button" [disabled]="!isNewRowValid()" (click)="saveNewUser()">Save</button>
+              <button type="button" class="cancel-button" (click)="cancelAddUser()">Cancel</button>
+            </td>
+          </tr>
+        }
+
+        @for (user of users; track user.id) {
+          <tr [class.editing-row]="editingId === user.id" [class.row-invalid]="editingId === user.id && !isEditRowValid()">
+
+            @if (editingId === user.id) {
+              <td>{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>
+                <input type="text" class="inline-input" [class.field-invalid]="editRowErrors.name" [(ngModel)]="editRow.name" (input)="onEditRowChange()" />
+                @if (editRowErrors.name) { <div class="field-error">{{ editRowErrors.name }}</div> }
+              </td>
+              <td>
+                <input type="email" class="inline-input" [class.field-invalid]="editRowErrors.email" [(ngModel)]="editRow.email" (input)="onEditRowChange()" />
+                @if (editRowErrors.email) { <div class="field-error">{{ editRowErrors.email }}</div> }
+              </td>
+              <td>
+                <input type="password" class="inline-input" [(ngModel)]="editRow.password" placeholder="Leave blank to keep current" />
+              </td>
+              <td>
+                <select class="inline-input" [(ngModel)]="editRow.role" (change)="onEditRowChange()">
+                  <option value="ADMIN">Admin</option>
+                  <option value="EMPLOYEE">Employee</option>
+                </select>
+              </td>
+              <td class="actions">
+                <button type="button" class="save-button" [disabled]="!isEditRowValid()" (click)="saveEditUser(user.id)">Save</button>
+                <button type="button" class="cancel-button" (click)="cancelEdit()">Cancel</button>
+              </td>
+            } @else {
+              <td>{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>••••••••</td>
+              <td>
+                <span class="role-badge" [class.admin]="user.role === 'ADMIN'">{{ user.role }}</span>
+              </td>
+              <td class="actions">
+                <button type="button" class="edit-button" [disabled]="isAddingNew || (editingId !== null && editingId !== user.id)" (click)="editUser(user)">Edit</button>
+                <button
+                  type="button"
+                  class="delete-button"
+                  [disabled]="isAddingNew || editingId !== null || user.username === currentUsername"
+                  [title]="user.username === currentUsername ? 'You cannot delete your own account' : ''"
+                  (click)="deleteUser(user.id)">
+                  Delete
+                </button>
+              </td>
+            }
+
+          </tr>
+        }
+
+      </tbody>
+    </table>
+  </div>
+
+  @if (users.length === 0 && !isAddingNew) {
+    <div class="no-data">No users found.</div>
+  }
+
+</div>

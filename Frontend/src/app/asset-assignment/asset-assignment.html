@@ -1,0 +1,418 @@
+<div class="assignment-container">
+
+  <div class="page-header">
+
+    <div class="page-title-section">
+
+      <div class="title-icon">
+        ▤
+      </div>
+
+      <div>
+
+        <h2>
+          Asset Assignment
+        </h2>
+
+        <p>
+          Assign available assets to employees
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="assignment-card">
+
+    <div class="card-header">
+
+      <div>
+
+        <h3>
+          Assign Asset
+        </h3>
+
+        <p>
+          Select an employee and an available asset
+        </p>
+
+      </div>
+
+      <div class="assignment-badge">
+        Asset Assignment
+      </div>
+
+    </div>
+
+    <form
+      [formGroup]="assignmentForm"
+      (ngSubmit)="submitAssignment()">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            Employee
+            <span>*</span>
+          </label>
+
+          <select formControlName="employeeId" (change)="onEmployeeChange()">
+
+            <option value="">
+              Select Employee
+            </option>
+
+            @for (
+              employee of employees;
+              track employee.id
+            ) {
+
+              @if (
+                employee.status === 'ACTIVE'
+              ) {
+
+                <option [value]="employee.id">
+
+                  {{ employee.employeeName }}
+                  -
+                  {{ employee.department }}
+
+                </option>
+
+              }
+
+            }
+
+          </select>
+
+          @if (
+            assignmentForm.get('employeeId')?.invalid &&
+            assignmentForm.get('employeeId')?.touched
+          ) {
+
+            <small class="error">
+              Please select an employee
+            </small>
+
+          }
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Asset / Product
+            <span>*</span>
+          </label>
+
+          <select formControlName="productId">
+
+            <option value="">
+              Select Available Asset
+            </option>
+
+            @for (
+              product of products;
+              track product.id
+            ) {
+
+              @if (
+                product.status === 'AVAILABLE'
+              ) {
+
+                <option [value]="product.id">
+
+                  {{ product.productName }}
+                  -
+                  {{ product.model }}
+                  -
+                  {{ product.serialNumber }}
+
+                </option>
+
+              }
+
+            }
+
+          </select>
+
+          @if (
+            assignmentForm.get('productId')?.invalid &&
+            assignmentForm.get('productId')?.touched
+          ) {
+
+            <small class="error">
+              Please select an asset
+            </small>
+
+          }
+
+        </div>
+
+      </div>
+
+      <div class="form-group assignment-type">
+
+        <label>
+          Assignment Type
+          <span>*</span>
+        </label>
+
+        <select
+          formControlName="assignmentType"
+          (change)="onAssignmentTypeChange()">
+
+          <option value="PERMANENT">
+            Permanent
+          </option>
+
+          <option value="TEMPORARY">
+            Temporary
+          </option>
+
+        </select>
+
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            Department
+          </label>
+
+          <select formControlName="department">
+
+            <option value="">Select Department</option>
+
+            @if (assignmentForm.value.department && !isKnownOption(assignmentForm.value.department, departmentOptions)) {
+              <option [value]="assignmentForm.value.department">{{ assignmentForm.value.department }}</option>
+            }
+
+            @for (opt of departmentOptions; track opt.id) {
+              <option [value]="opt.value">{{ opt.value }}</option>
+            }
+
+          </select>
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Designation
+          </label>
+
+          <select formControlName="designation">
+
+            <option value="">Select Designation</option>
+
+            @if (assignmentForm.value.designation && !isKnownOption(assignmentForm.value.designation, designationOptions)) {
+              <option [value]="assignmentForm.value.designation">{{ assignmentForm.value.designation }}</option>
+            }
+
+            @for (opt of designationOptions; track opt.id) {
+              <option [value]="opt.value">{{ opt.value }}</option>
+            }
+
+          </select>
+
+        </div>
+
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            Role
+          </label>
+
+          <select formControlName="role">
+
+            <option value="">Select Role</option>
+
+            @for (opt of roleOptions; track opt.id) {
+              <option [value]="opt.value">{{ opt.value }}</option>
+            }
+
+          </select>
+
+        </div>
+
+        <div class="form-group">
+
+          <label>
+            Product Status
+          </label>
+
+          <select formControlName="productStatus">
+
+            <option value="">Default (Product's current status)</option>
+
+            @for (opt of productStatusOptions; track opt.id) {
+              <option [value]="opt.value">{{ opt.value }}</option>
+            }
+
+          </select>
+
+        </div>
+
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+
+          <label>
+            Employee Status
+          </label>
+
+          <select formControlName="employeeStatus">
+
+            <option value="">Default (Employee's current status)</option>
+
+            @for (opt of employeeStatusOptions; track opt.id) {
+              <option [value]="opt.value">{{ opt.value }}</option>
+            }
+
+          </select>
+
+        </div>
+
+      </div>
+
+      @if (
+        assignmentForm.value.assignmentType ===
+        'TEMPORARY'
+      ) {
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label>
+              From Date
+              <span>*</span>
+            </label>
+
+            <input
+              type="date"
+              formControlName="fromDate"
+            />
+
+            @if (
+              assignmentForm.get('fromDate')?.invalid &&
+              assignmentForm.get('fromDate')?.touched
+            ) {
+
+              <small class="error">
+                From date is required
+              </small>
+
+            }
+
+          </div>
+
+          <div class="form-group">
+
+            <label>
+              To Date
+              <span>*</span>
+            </label>
+
+            <input
+              type="date"
+              formControlName="toDate"
+            />
+
+            @if (
+              assignmentForm.get('toDate')?.invalid &&
+              assignmentForm.get('toDate')?.touched
+            ) {
+
+              <small class="error">
+                To date is required
+              </small>
+
+            }
+
+          </div>
+
+        </div>
+
+      }
+
+      <div class="form-group">
+
+        <label>
+          Remarks
+        </label>
+
+        <textarea
+          formControlName="remarks"
+          rows="4"
+          placeholder="Enter assignment remarks...">
+        </textarea>
+
+      </div>
+
+      <div class="info-box">
+
+        <div class="info-icon">
+          i
+        </div>
+
+        <div class="info-content">
+
+          <strong>
+            Assignment Information
+          </strong>
+
+          <p>
+            Permanent assignment does not require
+            an end date. Temporary assignment requires
+            both From Date and To Date.
+          </p>
+
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="cancel-button"
+          (click)="cancelAssignment()">
+
+          Cancel
+
+        </button>
+
+        @if (isAdmin) {
+          <button
+            type="submit"
+            class="assign-button">
+
+            <span>
+              +
+            </span>
+
+            Assign Asset
+
+          </button>
+        }
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

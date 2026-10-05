@@ -1,0 +1,181 @@
+<div class="home-container">
+
+  <section class="welcome-banner">
+
+    <div class="welcome-content">
+
+      <p class="welcome-small">
+        Hello Admin,
+      </p>
+
+      <h1>
+        Welcome to Inventory<br>
+        Management System
+      </h1>
+
+      <p class="welcome-description">
+        Manage your products, employees and assets efficiently.
+      </p>
+
+    </div>
+
+    <div class="welcome-image">
+      <div class="laptop">💻</div>
+      <div class="boxes">📦 📦</div>
+    </div>
+
+  </section>
+
+  <div class="section-header">
+
+    <div>
+      <h2>Modules</h2>
+
+      <p>
+        Choose a module to get started
+      </p>
+    </div>
+
+  </div>
+
+  <div class="module-grid">
+
+    @if (authService.canView('PRODUCTS')) {
+    <div class="module-card product-card">
+
+      <div class="module-icon">
+        📦
+      </div>
+
+      <h3>
+        Product Management
+      </h3>
+
+      <p>
+        Manage your products, categories,
+        brands and stock details.
+      </p>
+
+      <button
+        type="button"
+        class="module-button product-button"
+        (click)="goToProducts()">
+
+        <span>Go to Products</span>
+        <span class="arrow">→</span>
+
+      </button>
+
+    </div>
+    }
+
+    @if (authService.canView('EMPLOYEES')) {
+    <div class="module-card employee-card">
+
+      <div class="module-icon">
+        👥
+      </div>
+
+      <h3>
+        Employee Management
+      </h3>
+
+      <p>
+        Manage employee details,
+        departments and designations.
+      </p>
+
+      <button
+        type="button"
+        class="module-button employee-button"
+        (click)="goToEmployees()">
+
+        <span>Go to Employees</span>
+        <span class="arrow">→</span>
+
+      </button>
+
+    </div>
+    }
+
+    @if (authService.canView('ASSET_ASSIGNMENT')) {
+    <div class="module-card asset-card">
+
+      <div class="module-icon">
+        💻
+      </div>
+
+      <h3>
+        Asset Assignment
+      </h3>
+
+      <p>
+        Assign PC, Laptop and other
+        assets to employees.
+      </p>
+
+      <button
+        type="button"
+        class="module-button asset-button"
+        (click)="goToAssetAssignment()">
+
+        <span>Go to Assets</span>
+        <span class="arrow">→</span>
+
+      </button>
+
+    </div>
+    }
+
+    @if (authService.canView('ASSIGNMENT_REGISTER')) {
+    <div class="module-card register-card">
+
+      <div class="module-icon">
+        📋
+      </div>
+
+      <h3>
+        Assignment Register
+      </h3>
+
+      <p>
+        View and manage asset
+        assignment records.
+      </p>
+
+      <button
+        type="button"
+        class="module-button register-button"
+        (click)="goToAssignmentRegister()">
+
+        <span>Go to Register</span>
+        <span class="arrow">→</span>
+
+      </button>
+
+    </div>
+    }
+
+  </div>
+
+  <section class="info-banner">
+
+    <div class="info-icon">
+      ✓
+    </div>
+
+    <div class="info-content">
+
+      <h3>
+        Efficient Asset Management
+      </h3>
+
+      <p>
+        Track&nbsp;&nbsp;•&nbsp;&nbsp;Assign&nbsp;&nbsp;•&nbsp;&nbsp;Manage&nbsp;&nbsp;•&nbsp;&nbsp;Grow
+      </p>
+
+    </div>
+
+  </section>
+
+</div>

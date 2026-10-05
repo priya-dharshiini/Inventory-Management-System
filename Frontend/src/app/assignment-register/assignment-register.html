@@ -1,0 +1,363 @@
+<div class="assignment-register-container">
+
+  <div class="page-header">
+
+    <div class="page-title-section">
+
+      <div class="title-icon">
+        ▤
+      </div>
+
+      <div>
+
+        <h2>Assignment Register</h2>
+
+        <p>
+          View and manage all asset assignments
+        </p>
+
+      </div>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="search-toggle-button"
+        title="Search assignments"
+        (click)="runSearch()">
+
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+          <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+
+        <span>Search</span>
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="assignment-card">
+
+    <div class="card-header">
+
+      <div>
+
+        <h3>
+          Asset Assignment Register
+        </h3>
+
+        <p>
+          {{ assignments.length }} assignment(s)
+        </p>
+
+      </div>
+
+      <div class="assignment-badge">
+
+        {{ assignments.length }} Records
+
+      </div>
+
+    </div>
+
+    @if (assignments.length > 0) {
+
+      <div class="table-container">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>ID</th>
+
+              <th>Employee</th>
+
+              <th>Department</th>
+
+              <th>Asset</th>
+
+              <th>Model</th>
+
+              <th>Serial Number</th>
+
+              <th>Type</th>
+
+              <th>From Date</th>
+
+              <th>To Date</th>
+
+              <th>Status</th>
+
+              <th>Actions</th>
+
+            </tr>
+
+            <tr class="filter-row">
+
+              <th></th>
+
+              <th>
+                <input type="text" [(ngModel)]="searchFields.employeeName" (input)="onSearchInput()" placeholder="Search employee" />
+              </th>
+
+              <th>
+                <input type="text" [(ngModel)]="searchFields.department" (input)="onSearchInput()" placeholder="Search dept" />
+              </th>
+
+              <th>
+                <input type="text" [(ngModel)]="searchFields.productName" (input)="onSearchInput()" placeholder="Search asset" />
+              </th>
+
+              <th>
+                <input type="text" [(ngModel)]="searchFields.model" (input)="onSearchInput()" placeholder="Search model" />
+              </th>
+
+              <th>
+                <input type="text" [(ngModel)]="searchFields.serialNumber" (input)="onSearchInput()" placeholder="Search serial #" />
+              </th>
+
+              <th>
+                <input type="text" [(ngModel)]="searchFields.assignmentType" (input)="onSearchInput()" placeholder="Search type" />
+              </th>
+
+              <th>
+                <input type="text" [(ngModel)]="searchFields.fromDate" (input)="onSearchInput()" placeholder="YYYY-MM-DD" />
+              </th>
+
+              <th>
+                <input type="text" [(ngModel)]="searchFields.toDate" (input)="onSearchInput()" placeholder="YYYY-MM-DD" />
+              </th>
+
+              <th>
+                <input type="text" [(ngModel)]="searchFields.status" (input)="onSearchInput()" placeholder="Search status" />
+              </th>
+
+              <th></th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            @for (
+              assignment of assignments;
+              track assignment.id
+            ) {
+
+              <tr>
+
+                <td>
+
+                  <strong>
+                    #{{ assignment.id }}
+                  </strong>
+
+                </td>
+
+                <td>
+
+                  <div class="employee-info">
+
+                    <strong>
+                      {{ assignment.employee?.employeeName }}
+                    </strong>
+
+                    <small>
+                      {{ assignment.employee?.email }}
+                    </small>
+
+                  </div>
+
+                </td>
+
+                <td>
+
+                  {{ assignment.employee?.department }}
+
+                </td>
+
+                <td>
+
+                  <div class="asset-info">
+
+                    <strong>
+                      {{ assignment.product?.productName }}
+                    </strong>
+
+                    <small>
+                      {{ assignment.product?.productType }}
+                    </small>
+
+                  </div>
+
+                </td>
+
+                <td>
+
+                  {{ assignment.product?.model }}
+
+                </td>
+
+                <td>
+
+                  <span class="serial-number">
+
+                    {{ assignment.product?.serialNumber }}
+
+                  </span>
+
+                </td>
+
+                <td>
+
+                  @if (
+                    assignment.assignmentType === 'PERMANENT'
+                  ) {
+
+                    <span class="type-badge permanent">
+
+                      Permanent
+
+                    </span>
+
+                  }
+
+                  @if (
+                    assignment.assignmentType === 'TEMPORARY'
+                  ) {
+
+                    <span class="type-badge temporary">
+
+                      Temporary
+
+                    </span>
+
+                  }
+
+                </td>
+
+                <td>
+
+                  {{ assignment.fromDate }}
+
+                </td>
+
+                <td>
+
+                  @if (assignment.toDate) {
+
+                    {{ assignment.toDate }}
+
+                  } @else {
+
+                    <span class="not-applicable">
+                      —
+                    </span>
+
+                  }
+
+                </td>
+
+                <td>
+
+                  @if (
+                    assignment.status === 'ACTIVE'
+                  ) {
+
+                    <span class="status-badge active">
+
+                      Active
+
+                    </span>
+
+                  }
+
+                  @if (
+                    assignment.status === 'RETURNED'
+                  ) {
+
+                    <span class="status-badge returned">
+
+                      Returned
+
+                    </span>
+
+                  }
+
+                </td>
+
+                <td>
+
+                  @if (
+                    assignment.status === 'ACTIVE' && isAdmin
+                  ) {
+
+                    <button
+                      type="button"
+                      class="return-button"
+                      (click)="returnAsset(assignment.id)"
+                    >
+
+                      Return Asset
+
+                    </button>
+
+                  }
+
+                  @if (
+                    assignment.status === 'RETURNED'
+                  ) {
+
+                    <span class="returned-text">
+
+                      Returned
+
+                    </span>
+
+                  }
+
+                </td>
+
+              </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    }
+
+    @if (assignments.length === 0) {
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          ▤
+        </div>
+
+        <h3>
+          No Assignments Found
+        </h3>
+
+        <p>
+          No assets have been assigned yet.
+        </p>
+
+      </div>
+
+    }
+
+  </div>
+
+</div>

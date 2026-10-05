@@ -1,0 +1,340 @@
+<div class="product-container">
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>Product Management</h1>
+
+      <p>
+        Product Details
+      </p>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="search-toggle-button"
+        title="Search products"
+        (click)="runSearch()">
+
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+          <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+
+        <span>Search</span>
+
+      </button>
+
+      @if (isAdmin) {
+        <button
+          type="button"
+          class="add-button"
+          [disabled]="isAddingNew || editingId !== null"
+          (click)="addProduct()">
+
+          + Add Product
+
+        </button>
+      }
+
+    </div>
+
+  </div>
+
+  <div class="table-container">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>ID</th>
+
+          <th>Product Name</th>
+
+          <th>Type</th>
+
+          <th>Brand</th>
+
+          <th>Model</th>
+
+          <th>Serial Number</th>
+
+          <th>Purchase Date</th>
+
+          <th>Price</th>
+
+          <th>Status</th>
+
+          <th>Actions</th>
+
+        </tr>
+
+        <tr class="filter-row">
+
+          <th></th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.productName" (input)="onSearchInput()" placeholder="Search name" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.productType" (input)="onSearchInput()" placeholder="Search type" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.brand" (input)="onSearchInput()" placeholder="Search brand" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.model" (input)="onSearchInput()" placeholder="Search model" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.serialNumber" (input)="onSearchInput()" placeholder="Search serial #" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.purchaseDate" (input)="onSearchInput()" placeholder="YYYY-MM-DD" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.price" (input)="onSearchInput()" placeholder="Search price" />
+          </th>
+
+          <th>
+            <input type="text" [(ngModel)]="searchFields.status" (input)="onSearchInput()" placeholder="Search status" />
+          </th>
+
+          <th></th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        @if (isAddingNew) {
+
+          <tr class="editing-row" [class.row-invalid]="!isNewRowValid()">
+
+            <td>New</td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="newRowErrors.productName" [(ngModel)]="newRow.productName" (input)="onNewRowChange()" placeholder="Product Name *" />
+              @if (newRowErrors.productName) { <div class="field-error">{{ newRowErrors.productName }}</div> }
+            </td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="newRowErrors.productType" [(ngModel)]="newRow.productType" (input)="onNewRowChange()" placeholder="Type *" />
+              @if (newRowErrors.productType) { <div class="field-error">{{ newRowErrors.productType }}</div> }
+            </td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="newRowErrors.brand" [(ngModel)]="newRow.brand" (input)="onNewRowChange()" placeholder="Brand *" />
+              @if (newRowErrors.brand) { <div class="field-error">{{ newRowErrors.brand }}</div> }
+            </td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="newRowErrors.model" [(ngModel)]="newRow.model" (input)="onNewRowChange()" placeholder="Model *" />
+              @if (newRowErrors.model) { <div class="field-error">{{ newRowErrors.model }}</div> }
+            </td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="newRowErrors.serialNumber" [(ngModel)]="newRow.serialNumber" (input)="onNewRowChange()" placeholder="Serial Number *" />
+              @if (newRowErrors.serialNumber) { <div class="field-error">{{ newRowErrors.serialNumber }}</div> }
+            </td>
+
+            <td>
+              <input type="date" class="inline-input" [class.field-invalid]="newRowErrors.purchaseDate" [(ngModel)]="newRow.purchaseDate" (change)="onNewRowChange()" />
+              @if (newRowErrors.purchaseDate) { <div class="field-error">{{ newRowErrors.purchaseDate }}</div> }
+            </td>
+
+            <td>
+              <input type="number" min="1" step="0.01" class="inline-input" [class.field-invalid]="newRowErrors.price" [(ngModel)]="newRow.price" (input)="onNewRowChange()" placeholder="Price *" />
+              @if (newRowErrors.price) { <div class="field-error">{{ newRowErrors.price }}</div> }
+            </td>
+
+            <td>
+              <select class="inline-input" [class.field-invalid]="newRowErrors.status" [(ngModel)]="newRow.status" (change)="onNewRowChange()">
+                <option value="">Select Status *</option>
+                @for (opt of statusOptions; track opt.id) {
+                  <option [value]="opt.value">{{ opt.value }}</option>
+                }
+              </select>
+              @if (newRowErrors.status) { <div class="field-error">{{ newRowErrors.status }}</div> }
+            </td>
+
+            <td class="actions">
+              <button type="button" class="save-button" [disabled]="!isNewRowValid()" (click)="saveNewProduct()">Save</button>
+              <button type="button" class="cancel-button" (click)="cancelAddProduct()">Cancel</button>
+            </td>
+
+          </tr>
+
+        }
+
+        @for (
+        product of products;
+        track product.id
+        ) {
+
+        <tr [class.editing-row]="editingId === product.id" [class.row-invalid]="editingId === product.id && !isEditRowValid()">
+
+          @if (editingId === product.id) {
+
+            <td>{{ product.id }}</td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="editRowErrors.productName" [(ngModel)]="editRow.productName" (input)="onEditRowChange()" />
+              @if (editRowErrors.productName) { <div class="field-error">{{ editRowErrors.productName }}</div> }
+            </td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="editRowErrors.productType" [(ngModel)]="editRow.productType" (input)="onEditRowChange()" />
+              @if (editRowErrors.productType) { <div class="field-error">{{ editRowErrors.productType }}</div> }
+            </td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="editRowErrors.brand" [(ngModel)]="editRow.brand" (input)="onEditRowChange()" />
+              @if (editRowErrors.brand) { <div class="field-error">{{ editRowErrors.brand }}</div> }
+            </td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="editRowErrors.model" [(ngModel)]="editRow.model" (input)="onEditRowChange()" />
+              @if (editRowErrors.model) { <div class="field-error">{{ editRowErrors.model }}</div> }
+            </td>
+
+            <td>
+              <input type="text" class="inline-input" [class.field-invalid]="editRowErrors.serialNumber" [(ngModel)]="editRow.serialNumber" (input)="onEditRowChange()" />
+              @if (editRowErrors.serialNumber) { <div class="field-error">{{ editRowErrors.serialNumber }}</div> }
+            </td>
+
+            <td>
+              <input type="date" class="inline-input" [class.field-invalid]="editRowErrors.purchaseDate" [(ngModel)]="editRow.purchaseDate" (change)="onEditRowChange()" />
+              @if (editRowErrors.purchaseDate) { <div class="field-error">{{ editRowErrors.purchaseDate }}</div> }
+            </td>
+
+            <td>
+              <input type="number" min="1" step="0.01" class="inline-input" [class.field-invalid]="editRowErrors.price" [(ngModel)]="editRow.price" (input)="onEditRowChange()" />
+              @if (editRowErrors.price) { <div class="field-error">{{ editRowErrors.price }}</div> }
+            </td>
+
+            <td>
+              <select class="inline-input" [class.field-invalid]="editRowErrors.status" [(ngModel)]="editRow.status" (change)="onEditRowChange()">
+                <option value="">Select Status *</option>
+                @for (opt of statusOptions; track opt.id) {
+                  <option [value]="opt.value">{{ opt.value }}</option>
+                }
+              </select>
+              @if (editRowErrors.status) { <div class="field-error">{{ editRowErrors.status }}</div> }
+            </td>
+
+            <td class="actions">
+              <button type="button" class="save-button" [disabled]="!isEditRowValid()" (click)="saveEditProduct(product.id)">Save</button>
+              <button type="button" class="cancel-button" (click)="cancelEdit()">Cancel</button>
+            </td>
+
+          } @else {
+
+            <td>
+              {{ product.id }}
+            </td>
+
+            <td>
+              {{ product.productName }}
+            </td>
+
+            <td>
+              {{ product.productType }}
+            </td>
+
+            <td>
+              {{ product.brand }}
+            </td>
+
+            <td>
+              {{ product.model }}
+            </td>
+
+            <td>
+              {{ product.serialNumber }}
+            </td>
+
+            <td>
+              {{ product.purchaseDate }}
+            </td>
+
+            <td>
+              ₹{{ product.price }}
+            </td>
+
+            <td>
+
+              <span
+                class="status"
+                [class.available]="product.status === 'AVAILABLE'"
+                [class.assigned]="product.status === 'ASSIGNED'"
+                [class.maintenance]="product.status === 'MAINTENANCE'"
+                [class.damaged]="product.status === 'DAMAGED'">
+
+                {{ product.status }}
+
+              </span>
+
+            </td>
+
+            <td class="actions">
+
+              @if (isAdmin) {
+                <button
+                  type="button"
+                  class="edit-button"
+                  [disabled]="isAddingNew || (editingId !== null && editingId !== product.id)"
+                  (click)="editProduct(product)">
+
+                  Edit
+
+                </button>
+
+                <button
+                  type="button"
+                  class="delete-button"
+                  [disabled]="isAddingNew || editingId !== null"
+                  (click)="deleteProduct(product.id)">
+
+                  Delete
+
+                </button>
+              }
+
+            </td>
+
+          }
+
+        </tr>
+
+        }
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  @if (products.length === 0 && !isAddingNew) {
+
+  <div class="no-data">
+
+    No products found.
+
+  </div>
+
+  }
+
+</div>

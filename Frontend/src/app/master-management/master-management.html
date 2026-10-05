@@ -1,0 +1,95 @@
+<div class="master-container">
+
+  <div class="page-header">
+    <div>
+      <h1>Master Data Management</h1>
+      <p>Manage Department, Designation, Role and Status values used across the system</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    @for (tab of tabs; track tab.key) {
+      <button
+        type="button"
+        class="tab-button"
+        [class.active]="activeTab === tab.key"
+        (click)="selectTab(tab)">
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  @if (isAdmin) {
+    <div class="add-section">
+      <div class="add-title">Add New {{ currentTabLabel() }} Value</div>
+
+      <div class="add-container">
+        <input
+          type="text"
+          [(ngModel)]="newValue"
+          placeholder="Enter value (e.g. IT)"
+        />
+
+        <input
+          type="text"
+          [(ngModel)]="newDescription"
+          placeholder="Description (optional)"
+        />
+
+        <button type="button" class="save-button" (click)="addValue()">
+          + Add
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Value</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (row of values; track row.id) {
+          <tr>
+            <td>{{ row.id }}</td>
+
+            @if (editingId === row.id) {
+              <td>
+                <input type="text" class="inline-input" [(ngModel)]="editValue" />
+              </td>
+              <td>
+                <input type="text" class="inline-input" [(ngModel)]="editDescription" />
+              </td>
+              <td class="actions">
+                <button type="button" class="save-button" (click)="saveEdit(row)">Save</button>
+                <button type="button" class="cancel-button" (click)="cancelEdit()">Cancel</button>
+              </td>
+            } @else {
+              <td>{{ row.value }}</td>
+              <td>{{ row.description }}</td>
+              <td class="actions">
+                @if (isAdmin) {
+                  <button type="button" class="edit-button" (click)="startEdit(row)">Edit</button>
+                  <button type="button" class="delete-button" (click)="deleteValue(row)">Delete</button>
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (!loading && values.length === 0) {
+    <div class="no-data">
+      No {{ currentTabLabel() }} values found. Add one above.
+    </div>
+  }
+
+</div>
