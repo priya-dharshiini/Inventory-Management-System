@@ -5,6 +5,15 @@ import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '../services/employee';
 import { MasterService } from '../services/master';
 import { AuthService } from '../services/auth';
+import { buildRequiredErrors, hasErrors, hasSearchCriteria, isValidEmail, SearchDebouncer } from '../shared/form-utils';
+
+const REQUIRED_FIELDS = ['employeeName', 'email', 'phone', 'department', 'designation', 'status'];
+const PHONE_PATTERN = /^[0-9]{10}$/;
+
+const FIELD_LABELS: Record<string, string> = {
+  employeeName: 'Employee Name', email: 'Email', phone: 'Phone',
+  department: 'Department', designation: 'Designation', status: 'Status'
+};
 
 @Component({
   selector: 'app-employee-management',
@@ -24,8 +33,6 @@ export class EmployeeManagement implements OnInit {
     id: '', employeeName: '', email: '', phone: '', department: '', designation: '', status: ''
   };
 
-  private searchDebounce: any = null;
-
   isAddingNew = false;
   newRow: any = this.emptyEmployee();
   newRowErrors: any = {};
@@ -34,22 +41,10 @@ export class EmployeeManagement implements OnInit {
   editRow: any = {};
   editRowErrors: any = {};
 
-  private requiredFields = ['employeeName', 'email', 'phone', 'department', 'designation', 'status'];
-
-  private emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  private phonePattern = /^[0-9]{10}$/;
-
-  private fieldLabels: any = {
-    employeeName: 'Employee Name',
-    email: 'Email',
-    phone: 'Phone',
-    department: 'Department',
-    designation: 'Designation',
-    status: 'Status'
-  };
-
   // Employees can view this page but cannot create, edit or delete
   isAdmin = false;
+
+  private searchDebouncer = new SearchDebouncer();
 
   constructor(
     private employeeService: EmployeeService,
@@ -72,7 +67,6 @@ export class EmployeeManagement implements OnInit {
   }
 
   loadMasterOptions(): void {
-
     this.masterService.getByType('DEPARTMENT').subscribe({
       next: (data) => this.departmentOptions = data || [],
       error: (error) => console.error('Error loading department master:', error)
@@ -90,7 +84,6 @@ export class EmployeeManagement implements OnInit {
   }
 
   getEmployees(): void {
-
     this.employeeService.getAllEmployees().subscribe({
       next: (data) => {
         this.employees = [...data];
@@ -104,20 +97,11 @@ export class EmployeeManagement implements OnInit {
   }
 
   onSearchInput(): void {
-
-    if (this.searchDebounce) {
-      clearTimeout(this.searchDebounce);
-    }
-
-    this.searchDebounce = setTimeout(() => this.runSearch(), 300);
+    this.searchDebouncer.run(() => this.runSearch());
   }
 
   runSearch(): void {
-
-    const hasCriteria = Object.values(this.searchFields)
-      .some((value: any) => value !== null && value !== undefined && String(value).trim() !== '');
-
-    if (!hasCriteria) {
+    if (!hasSearchCriteria(this.searchFields)) {
       this.getEmployees();
       return;
     }
@@ -135,38 +119,16 @@ export class EmployeeManagement implements OnInit {
     });
   }
 
-  clearSearch(): void {
-    this.searchFields = {
-      id: '', employeeName: '', email: '', phone: '', department: '', designation: '', status: ''
-    };
-    this.getEmployees();
-  }
-
   private validateRow(row: any): any {
+    const errors = buildRequiredErrors(row, REQUIRED_FIELDS, FIELD_LABELS);
 
-    const errors: any = {};
-
-    for (const field of this.requiredFields) {
-
-      const value = row ? row[field] : null;
-      const isEmpty = value === null || value === undefined || String(value).trim() === '';
-
-      errors[field] = isEmpty ? `${this.fieldLabels[field]} is required` : '';
-    }
-
-    if (!errors['email'] && !this.emailPattern.test(String(row.email).trim())) {
+    if (!errors['email'] && !isValidEmail(row.email)) {
       errors['email'] = 'Enter a valid email address';
     }
-
-    if (!errors['phone'] && !this.phonePattern.test(String(row.phone).trim())) {
+    if (!errors['phone'] && !PHONE_PATTERN.test(String(row.phone).trim())) {
       errors['phone'] = 'Phone must be exactly 10 digits';
     }
-
     return errors;
-  }
-
-  private hasErrors(errors: any): boolean {
-    return Object.values(errors).some((message) => !!message);
   }
 
   onNewRowChange(): void {
@@ -178,11 +140,11 @@ export class EmployeeManagement implements OnInit {
   }
 
   isNewRowValid(): boolean {
-    return !this.hasErrors(this.validateRow(this.newRow));
+    return !hasErrors(this.validateRow(this.newRow));
   }
 
   isEditRowValid(): boolean {
-    return !this.hasErrors(this.validateRow(this.editRow));
+    return !hasErrors(this.validateRow(this.editRow));
   }
 
   addEmployee(): void {
@@ -192,10 +154,8 @@ export class EmployeeManagement implements OnInit {
   }
 
   saveNewEmployee(): void {
-
     this.newRowErrors = this.validateRow(this.newRow);
-
-    if (this.hasErrors(this.newRowErrors)) {
+    if (hasErrors(this.newRowErrors)) {
       return;
     }
 
@@ -221,21 +181,17 @@ export class EmployeeManagement implements OnInit {
   }
 
   editEmployee(employee: any): void {
-
     if (this.isAddingNew || (this.editingId !== null && this.editingId !== employee.id)) {
       return;
     }
-
     this.editingId = employee.id;
     this.editRow = { ...employee };
     this.editRowErrors = this.validateRow(this.editRow);
   }
 
   saveEditEmployee(id: number): void {
-
     this.editRowErrors = this.validateRow(this.editRow);
-
-    if (this.hasErrors(this.editRowErrors)) {
+    if (hasErrors(this.editRowErrors)) {
       return;
     }
 
@@ -260,7 +216,6 @@ export class EmployeeManagement implements OnInit {
   }
 
   deleteEmployee(id: number): void {
-
     if (!confirm('Are you sure you want to delete this employee?')) {
       return;
     }

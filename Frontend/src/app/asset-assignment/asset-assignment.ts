@@ -62,31 +62,22 @@ export class AssetAssignment implements OnInit {
   }
 
   loadMasterOptions(): void {
+    // Each dropdown's options come from a different master-data type.
+    // We loop over them instead of repeating the same subscribe code 5 times.
+    const dropdowns: [string, (data: any[]) => void][] = [
+      ['DEPARTMENT', (data) => this.departmentOptions = data],
+      ['DESIGNATION', (data) => this.designationOptions = data],
+      ['ROLE', (data) => this.roleOptions = data],
+      ['PRODUCT_STATUS', (data) => this.productStatusOptions = data],
+      ['EMPLOYEE_STATUS', (data) => this.employeeStatusOptions = data]
+    ];
 
-    this.masterService.getByType('DEPARTMENT').subscribe({
-      next: (data) => this.departmentOptions = data || [],
-      error: (error) => console.error('Error loading departments:', error)
-    });
-
-    this.masterService.getByType('DESIGNATION').subscribe({
-      next: (data) => this.designationOptions = data || [],
-      error: (error) => console.error('Error loading designations:', error)
-    });
-
-    this.masterService.getByType('ROLE').subscribe({
-      next: (data) => this.roleOptions = data || [],
-      error: (error) => console.error('Error loading roles:', error)
-    });
-
-    this.masterService.getByType('PRODUCT_STATUS').subscribe({
-      next: (data) => this.productStatusOptions = data || [],
-      error: (error) => console.error('Error loading product statuses:', error)
-    });
-
-    this.masterService.getByType('EMPLOYEE_STATUS').subscribe({
-      next: (data) => this.employeeStatusOptions = data || [],
-      error: (error) => console.error('Error loading employee statuses:', error)
-    });
+    for (const [type, setOptions] of dropdowns) {
+      this.masterService.getByType(type).subscribe({
+        next: (data) => setOptions(data || []),
+        error: (error) => console.error(`Error loading ${type}:`, error)
+      });
+    }
   }
 
   loadEmployees(): void {

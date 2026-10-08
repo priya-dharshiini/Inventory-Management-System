@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.projects.InventoryMangementSystem.Util.TextSearch.isEmpty;
+import static com.projects.InventoryMangementSystem.Util.TextSearch.matches;
+import static com.projects.InventoryMangementSystem.Util.TextSearch.matchesAny;
+
 @Service
 public class EmployeeService {
 
@@ -22,7 +26,7 @@ public class EmployeeService {
             throw new RuntimeException("Email already exists");
         }
 
-        if (employee.getStatus() == null || employee.getStatus().isBlank()) {
+        if (isEmpty(employee.getStatus())) {
             employee.setStatus("ACTIVE");
         }
 
@@ -44,7 +48,7 @@ public class EmployeeService {
 
         validateEmployee(updatedEmployee);
 
-        if (updatedEmployee.getStatus() == null || updatedEmployee.getStatus().isBlank()) {
+        if (isEmpty(updatedEmployee.getStatus())) {
             throw new RuntimeException("Status is required");
         }
 
@@ -68,34 +72,24 @@ public class EmployeeService {
         if (isEmpty(employee.getEmployeeName())) {
             throw new RuntimeException("Employee Name is required");
         }
-
         if (isEmpty(employee.getEmail())) {
             throw new RuntimeException("Email is required");
         }
-
         if (!employee.getEmail().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             throw new RuntimeException("Email must be a valid email address");
         }
-
         if (isEmpty(employee.getPhone())) {
             throw new RuntimeException("Phone is required");
         }
-
         if (!employee.getPhone().matches("^[0-9]{10}$")) {
             throw new RuntimeException("Phone must be exactly 10 digits");
         }
-
         if (isEmpty(employee.getDepartment())) {
             throw new RuntimeException("Department is required");
         }
-
         if (isEmpty(employee.getDesignation())) {
             throw new RuntimeException("Designation is required");
         }
-    }
-
-    private boolean isEmpty(String value) {
-        return value == null || value.isBlank();
     }
 
     public List<Employee> searchEmployees(
@@ -114,43 +108,16 @@ public class EmployeeService {
             if (!matches(employee.getDesignation(), designation)) continue;
             if (!matches(employee.getStatus(), status)) continue;
 
-            if (matchesKeyword(q, employee)) {
+            boolean keywordMatch = matchesAny(q,
+                    employee.getId(), employee.getEmployeeName(), employee.getEmail(),
+                    employee.getPhone(), employee.getDepartment(), employee.getDesignation(),
+                    employee.getStatus());
+
+            if (keywordMatch) {
                 result.add(employee);
             }
         }
 
         return result;
-    }
-
-    private boolean matches(String fieldValue, String searchText) {
-
-        if (searchText == null || searchText.isBlank()) {
-            return true;
-        }
-
-        if (fieldValue == null) {
-            return false;
-        }
-
-        return fieldValue.toLowerCase().contains(searchText.trim().toLowerCase());
-    }
-
-    private boolean matchesKeyword(String keyword, Employee employee) {
-
-        if (keyword == null || keyword.isBlank()) {
-            return true;
-        }
-
-        String text = (
-                employee.getId() + " " +
-                employee.getEmployeeName() + " " +
-                employee.getEmail() + " " +
-                employee.getPhone() + " " +
-                employee.getDepartment() + " " +
-                employee.getDesignation() + " " +
-                employee.getStatus()
-        ).toLowerCase();
-
-        return text.contains(keyword.trim().toLowerCase());
     }
 }

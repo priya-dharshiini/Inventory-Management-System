@@ -20,17 +20,12 @@ public class RolePermission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @Column(name = "role", nullable = false)
+    @Column(nullable = false)
     private String role;
 
-
-    @Column(name = "screen", nullable = false)
+    @Column(nullable = false)
     private String screen;
 
-
     private Boolean canView = false;
-
-
     private Boolean canEdit = false;
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export type MasterType = 'DEPARTMENT' | 'DESIGNATION' | 'ROLE' | 'PRODUCT_STATUS' | 'EMPLOYEE_STATUS';
 
@@ -9,7 +10,7 @@ export type MasterType = 'DEPARTMENT' | 'DESIGNATION' | 'ROLE' | 'PRODUCT_STATUS
 })
 export class MasterService {
 
-  private apiUrl = 'http://localhost:8080/api/masters';
+ private apiUrl = `${environment.apiUrl}/api/masters`;
 
   constructor(private http: HttpClient) {}
 

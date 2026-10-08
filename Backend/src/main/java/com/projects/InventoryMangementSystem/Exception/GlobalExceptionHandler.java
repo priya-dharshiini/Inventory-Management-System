@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
 
+// Turns thrown errors into proper JSON responses (with a "message") instead of
+// letting them fall through to /error, which previously showed up as a 403.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

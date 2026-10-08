@@ -26,7 +26,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-
+    // Accepted from the request, but never sent back in responses
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false)
     private String password;

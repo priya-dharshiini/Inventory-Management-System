@@ -1,14 +1,27 @@
 import { Router } from '@angular/router';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 
 import { ProductService } from '../services/product';
 import { MasterService } from '../services/master';
 import { AuthService } from '../services/auth';
+import { buildRequiredErrors, hasErrors, hasSearchCriteria, SearchDebouncer } from '../shared/form-utils';
+
+const REQUIRED_FIELDS = ['productName', 'productType', 'brand', 'model', 'serialNumber', 'purchaseDate', 'price', 'status'];
+
+const FIELD_LABELS: Record<string, string> = {
+  productName: 'Product Name', productType: 'Product Type', brand: 'Brand', model: 'Model',
+  serialNumber: 'Serial Number', purchaseDate: 'Purchase Date', price: 'Price', status: 'Status'
+};
 
 @Component({
   selector: 'app-product-management',
-  imports: [FormsModule],
+  imports: [FormsModule,ButtonModule,TableModule,TagModule,InputTextModule,SelectModule],
   templateUrl: './product-management.html',
   styleUrl: './product-management.css'
 })
@@ -22,8 +35,6 @@ export class ProductManagement implements OnInit {
     model: '', serialNumber: '', status: '', purchaseDate: '', price: ''
   };
 
-  private searchDebounce: any = null;
-
   isAddingNew = false;
   newRow: any = this.emptyProduct();
   newRowErrors: any = {};
@@ -32,24 +43,10 @@ export class ProductManagement implements OnInit {
   editRow: any = {};
   editRowErrors: any = {};
 
-  private requiredFields = [
-    'productName', 'productType', 'brand', 'model',
-    'serialNumber', 'purchaseDate', 'price', 'status'
-  ];
 
-  private fieldLabels: any = {
-    productName: 'Product Name',
-    productType: 'Product Type',
-    brand: 'Brand',
-    model: 'Model',
-    serialNumber: 'Serial Number',
-    purchaseDate: 'Purchase Date',
-    price: 'Price',
-    status: 'Status'
-  };
-
-  // Employees can view this page but cannot create, edit or delete
   isAdmin = false;
+
+  private searchDebouncer = new SearchDebouncer();
 
   constructor(
     private productService: ProductService,
@@ -75,7 +72,6 @@ export class ProductManagement implements OnInit {
   }
 
   loadStatusOptions(): void {
-
     this.masterService.getByType('PRODUCT_STATUS').subscribe({
       next: (data) => this.statusOptions = data || [],
       error: (error) => console.error('Error loading status master:', error)
@@ -83,7 +79,6 @@ export class ProductManagement implements OnInit {
   }
 
   getProducts(): void {
-
     this.productService.getAllProducts().subscribe({
       next: (data) => {
         this.products = [...data];
@@ -97,20 +92,11 @@ export class ProductManagement implements OnInit {
   }
 
   onSearchInput(): void {
-
-    if (this.searchDebounce) {
-      clearTimeout(this.searchDebounce);
-    }
-
-    this.searchDebounce = setTimeout(() => this.runSearch(), 300);
+    this.searchDebouncer.run(() => this.runSearch());
   }
 
   runSearch(): void {
-
-    const hasCriteria = Object.values(this.searchFields)
-      .some((value: any) => value !== null && value !== undefined && String(value).trim() !== '');
-
-    if (!hasCriteria) {
+    if (!hasSearchCriteria(this.searchFields)) {
       this.getProducts();
       return;
     }
@@ -128,35 +114,12 @@ export class ProductManagement implements OnInit {
     });
   }
 
-  clearSearch(): void {
-    this.searchFields = {
-      id: '', productName: '', productType: '', brand: '',
-      model: '', serialNumber: '', status: '', purchaseDate: '', price: ''
-    };
-    this.getProducts();
-  }
-
   private validateRow(row: any): any {
-
-    const errors: any = {};
-
-    for (const field of this.requiredFields) {
-
-      const value = row ? row[field] : null;
-      const isEmpty = value === null || value === undefined || String(value).trim() === '';
-
-      errors[field] = isEmpty ? `${this.fieldLabels[field]} is required` : '';
-    }
-
+    const errors = buildRequiredErrors(row, REQUIRED_FIELDS, FIELD_LABELS);
     if (!errors['price'] && Number(row.price) <= 0) {
       errors['price'] = 'Price must be greater than 0';
     }
-
     return errors;
-  }
-
-  private hasErrors(errors: any): boolean {
-    return Object.values(errors).some((message) => !!message);
   }
 
   onNewRowChange(): void {
@@ -168,11 +131,11 @@ export class ProductManagement implements OnInit {
   }
 
   isNewRowValid(): boolean {
-    return !this.hasErrors(this.validateRow(this.newRow));
+    return !hasErrors(this.validateRow(this.newRow));
   }
 
   isEditRowValid(): boolean {
-    return !this.hasErrors(this.validateRow(this.editRow));
+    return !hasErrors(this.validateRow(this.editRow));
   }
 
   addProduct(): void {
@@ -182,10 +145,8 @@ export class ProductManagement implements OnInit {
   }
 
   saveNewProduct(): void {
-
     this.newRowErrors = this.validateRow(this.newRow);
-
-    if (this.hasErrors(this.newRowErrors)) {
+    if (hasErrors(this.newRowErrors)) {
       return;
     }
 
@@ -211,21 +172,17 @@ export class ProductManagement implements OnInit {
   }
 
   editProduct(product: any): void {
-
     if (this.isAddingNew || (this.editingId !== null && this.editingId !== product.id)) {
       return;
     }
-
     this.editingId = product.id;
     this.editRow = { ...product };
     this.editRowErrors = this.validateRow(this.editRow);
   }
 
   saveEditProduct(id: number): void {
-
     this.editRowErrors = this.validateRow(this.editRow);
-
-    if (this.hasErrors(this.editRowErrors)) {
+    if (hasErrors(this.editRowErrors)) {
       return;
     }
 
@@ -250,7 +207,6 @@ export class ProductManagement implements OnInit {
   }
 
   deleteProduct(id: number): void {
-
     if (!confirm('Are you sure you want to delete this product?')) {
       return;
     }

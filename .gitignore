@@ -1,0 +1,23 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Angular
+node_modules/
+dist/
+.angular/
+
+# Spring Boot
+target/
+
+# Logs
+*.log
+
+# Backup / copy folders
+Frontend - Copy/
+
+# Zip backup files
+*.zip
+
+# Environment / secret files
+.env

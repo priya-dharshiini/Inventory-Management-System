@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export type ScreenKey = 'PRODUCTS' | 'EMPLOYEES' | 'ASSET_ASSIGNMENT' | 'ASSIGNMENT_REGISTER' | 'MASTER_DATA';
 
@@ -21,8 +22,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class AuthService {
-
-  private apiUrl = 'http://localhost:8080/api/auth';
+private apiUrl = `${environment.apiUrl}/api/auth`;
 
   constructor(private http: HttpClient) {}
 
@@ -35,8 +35,6 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, null, { params });
   }
 
-  // Asks the backend what the logged-in user may open / change and
-  // remembers it, so menus, pages and buttons can react to it.
   loadPermissions(): Observable<MyPermissions> {
     return this.http.get<MyPermissions>('http://localhost:8080/api/role-access/my').pipe(
       tap((permissions) => localStorage.setItem('permissions', JSON.stringify(permissions)))

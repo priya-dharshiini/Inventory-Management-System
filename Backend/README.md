@@ -5,4 +5,4 @@
 3. Check the MySQL username/password in src/main/resources/application.properties
 4. Run:  mvn spring-boot:run   (starts on http://localhost:8080)
 
-Tables are created automatically. Default login: admin / admin123
+Tables are created automatically on first run.

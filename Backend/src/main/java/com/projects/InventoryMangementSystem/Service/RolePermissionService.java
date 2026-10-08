@@ -11,9 +11,7 @@ public class RolePermissionService {
 
     public static final String ADMIN = "ADMIN";
 
-
     public static final List<String> ROLES = List.of("ADMIN", "EMPLOYEE");
-
 
     public static final List<String> SCREENS = List.of(
             "PRODUCTS", "EMPLOYEES", "ASSET_ASSIGNMENT", "ASSIGNMENT_REGISTER", "MASTER_DATA"
@@ -25,8 +23,7 @@ public class RolePermissionService {
         this.repository = repository;
     }
 
-    // Creates any missing role/screen rows. Admin gets everything,
-    // Employee can view everything but not change anything (same as before).
+
     public void seedDefaults() {
 
         for (String role : ROLES) {
@@ -55,7 +52,7 @@ public class RolePermissionService {
         return all;
     }
 
-    // Permissions for one role as { SCREEN: {canView, canEdit} }
+
     public Map<String, Map<String, Boolean>> getForRole(String role) {
 
         Map<String, Map<String, Boolean>> result = new LinkedHashMap<>();
@@ -74,8 +71,6 @@ public class RolePermissionService {
 
         return result;
     }
-
-    // Saves the matrix sent from the Role Access screen.
     public List<RolePermission> saveAll(List<RolePermission> incoming) {
 
         for (RolePermission in : incoming) {
@@ -91,7 +86,7 @@ public class RolePermissionService {
                 throw new RuntimeException("Unknown role or screen: " + role + " / " + screen);
             }
 
-            // Admin always keeps full access so nobody can lock themselves out
+
             if (ADMIN.equals(role)) {
                 continue;
             }
@@ -104,7 +99,7 @@ public class RolePermissionService {
             });
 
             boolean canEdit = Boolean.TRUE.equals(in.getCanEdit());
-            // Being able to edit a screen implies being able to open it
+
             boolean canView = Boolean.TRUE.equals(in.getCanView()) || canEdit;
 
             row.setCanView(canView);
@@ -115,7 +110,7 @@ public class RolePermissionService {
         return getAll();
     }
 
-    // Used by SecurityConfig for POST / PUT / DELETE requests.
+
     public boolean canWrite(String role, String path) {
 
         if (role == null || role.isBlank()) {
@@ -147,7 +142,6 @@ public class RolePermissionService {
         if (path.startsWith("/api/masters")) return List.of("MASTER_DATA");
         if (path.startsWith("/api/assignments")) return List.of("ASSET_ASSIGNMENT", "ASSIGNMENT_REGISTER");
 
-        // Anything else stays Admin-only
         return List.of();
     }
 }

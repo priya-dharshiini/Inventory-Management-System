@@ -3,6 +3,11 @@ import { FormsModule } from '@angular/forms';
 
 import { UserService } from '../services/user';
 import { AuthService } from '../services/auth';
+import { buildRequiredErrors, hasErrors, isValidEmail } from '../shared/form-utils';
+
+const FIELD_LABELS: Record<string, string> = {
+  username: 'Username', name: 'Name', email: 'Email', role: 'Role'
+};
 
 @Component({
   selector: 'app-user-management',
@@ -24,8 +29,6 @@ export class UserManagement implements OnInit {
 
   // The currently logged-in user's own username, so they can't delete themselves
   currentUsername = '';
-
-private emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   constructor(
     private userService: UserService,
@@ -53,29 +56,15 @@ private emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   }
 
   private validateRow(row: any, isCreate: boolean): any {
+    const errors = buildRequiredErrors(row, ['username', 'name', 'email', 'role'], FIELD_LABELS);
 
-    const errors: any = {};
-
-    errors.username = !row.username || !row.username.trim() ? 'Username is required' : '';
-    errors.name = !row.name || !row.name.trim() ? 'Name is required' : '';
-    errors.email = !row.email || !row.email.trim() ? 'Email is required' : '';
-    errors.role = !row.role ? 'Role is required' : '';
-
-    if (!errors.email && !this.emailPattern.test(String(row.email).trim())) {
+    if (!errors.email && !isValidEmail(row.email)) {
       errors.email = 'Enter a valid email address';
     }
 
-    if (isCreate && (!row.password || !row.password.trim())) {
-      errors.password = 'Password is required';
-    } else {
-      errors.password = '';
-    }
+    errors.password = isCreate && (!row.password || !row.password.trim()) ? 'Password is required' : '';
 
     return errors;
-  }
-
-  private hasErrors(errors: any): boolean {
-    return Object.values(errors).some((message) => !!message);
   }
 
   onNewRowChange(): void {
@@ -87,11 +76,11 @@ private emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   }
 
   isNewRowValid(): boolean {
-    return !this.hasErrors(this.validateRow(this.newRow, true));
+    return !hasErrors(this.validateRow(this.newRow, true));
   }
 
   isEditRowValid(): boolean {
-    return !this.hasErrors(this.validateRow(this.editRow, false));
+    return !hasErrors(this.validateRow(this.editRow, false));
   }
 
   addUser(): void {
@@ -104,7 +93,7 @@ private emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     this.newRowErrors = this.validateRow(this.newRow, true);
 
-    if (this.hasErrors(this.newRowErrors)) {
+    if (hasErrors(this.newRowErrors)) {
       return;
     }
 
@@ -144,7 +133,7 @@ private emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     this.editRowErrors = this.validateRow(this.editRow, false);
 
-    if (this.hasErrors(this.editRowErrors)) {
+    if (hasErrors(this.editRowErrors)) {
       return;
     }
 

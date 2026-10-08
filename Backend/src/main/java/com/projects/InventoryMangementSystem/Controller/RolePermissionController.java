@@ -20,7 +20,6 @@ public class RolePermissionController {
         this.service = service;
     }
 
-
     @GetMapping
     public ResponseEntity<Map<String, Object>> getMatrix() {
         return ResponseEntity.ok(Map.of(
@@ -30,13 +29,13 @@ public class RolePermissionController {
         ));
     }
 
-
+    // Admin only: save changes
     @PutMapping
     public ResponseEntity<List<RolePermission>> save(@RequestBody List<RolePermission> permissions) {
         return ResponseEntity.ok(service.saveAll(permissions));
     }
 
-
+    // Any logged-in user: what can *I* access?
     @GetMapping("/my")
     public ResponseEntity<Map<String, Map<String, Boolean>>> myPermissions(Authentication authentication) {
 

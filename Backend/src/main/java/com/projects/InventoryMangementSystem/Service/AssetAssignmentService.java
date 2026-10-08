@@ -12,6 +12,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.projects.InventoryMangementSystem.Util.TextSearch.isEmpty;
+import static com.projects.InventoryMangementSystem.Util.TextSearch.matches;
+
 @Service
 public class AssetAssignmentService {
 
@@ -45,31 +48,7 @@ public class AssetAssignmentService {
             throw new RuntimeException("Product is not available. Current status: " + product.getStatus());
         }
 
-        if (assignmentType == null || assignmentType.isBlank()) {
-            throw new RuntimeException("Assignment type is required");
-        }
-
-        if ("TEMPORARY".equalsIgnoreCase(assignmentType)) {
-
-            if (fromDate == null || toDate == null) {
-                throw new RuntimeException("Temporary assignment requires From Date and To Date");
-            }
-
-            if (!toDate.isAfter(fromDate)) {
-                throw new RuntimeException("To Date must be after From Date");
-            }
-
-        } else if ("PERMANENT".equalsIgnoreCase(assignmentType)) {
-
-            if (fromDate == null) {
-                throw new RuntimeException("Permanent assignment requires From Date");
-            }
-
-            toDate = null;
-
-        } else {
-            throw new RuntimeException("Assignment type must be TEMPORARY or PERMANENT");
-        }
+        toDate = validateAssignmentDates(assignmentType, fromDate, toDate);
 
         AssetAssignment assignment = new AssetAssignment();
         assignment.setEmployee(employee);
@@ -93,8 +72,32 @@ public class AssetAssignmentService {
         return assignmentRepository.save(assignment);
     }
 
-    private boolean isEmpty(String value) {
-        return value == null || value.isBlank();
+    // Checks the From/To dates based on assignment type and returns the
+    // To Date that should actually be saved (null for permanent assignments).
+    private LocalDate validateAssignmentDates(String assignmentType, LocalDate fromDate, LocalDate toDate) {
+
+        if (isEmpty(assignmentType)) {
+            throw new RuntimeException("Assignment type is required");
+        }
+
+        if ("TEMPORARY".equalsIgnoreCase(assignmentType)) {
+            if (fromDate == null || toDate == null) {
+                throw new RuntimeException("Temporary assignment requires From Date and To Date");
+            }
+            if (!toDate.isAfter(fromDate)) {
+                throw new RuntimeException("To Date must be after From Date");
+            }
+            return toDate;
+        }
+
+        if ("PERMANENT".equalsIgnoreCase(assignmentType)) {
+            if (fromDate == null) {
+                throw new RuntimeException("Permanent assignment requires From Date");
+            }
+            return null;
+        }
+
+        throw new RuntimeException("Assignment type must be TEMPORARY or PERMANENT");
     }
 
     public List<AssetAssignment> getAllAssignments() {
@@ -161,18 +164,5 @@ public class AssetAssignmentService {
         }
 
         return result;
-    }
-
-    private boolean matches(String fieldValue, String searchText) {
-
-        if (searchText == null || searchText.isBlank()) {
-            return true;
-        }
-
-        if (fieldValue == null) {
-            return false;
-        }
-
-        return fieldValue.toLowerCase().contains(searchText.trim().toLowerCase());
     }
 }

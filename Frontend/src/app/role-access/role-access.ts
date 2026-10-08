@@ -91,7 +91,7 @@ export class RoleAccess implements OnInit {
 
     row.canView = checked;
 
-    // No view access means no edit access either
+ 
     if (!checked) {
       row.canEdit = false;
     }
@@ -106,7 +106,7 @@ export class RoleAccess implements OnInit {
 
     row.canEdit = checked;
 
-    // Edit access needs view access
+
     if (checked) {
       row.canView = true;
     }
@@ -124,7 +124,7 @@ export class RoleAccess implements OnInit {
         this.hasChanges = false;
         this.saving = false;
 
-        // Refresh the logged-in Admin's own menu too
+      
         this.authService.loadPermissions().subscribe({ error: () => {} });
 
         alert('Role access saved successfully');

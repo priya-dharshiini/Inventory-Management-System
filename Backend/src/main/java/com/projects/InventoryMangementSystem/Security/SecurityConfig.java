@@ -108,20 +108,19 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Spring forwards controller exceptions to /error. If /error is not
-                        // open, the real error (400/409/...) is hidden behind a fake 403.
+
                         .requestMatchers("/error").permitAll()
-                        // Login must be reachable before anyone is logged in
+
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Every logged-in user can ask what they themselves may access
+
                         .requestMatchers(HttpMethod.GET, "/api/role-access/my").authenticated()
-                        // Only an Admin may change who can access what
+
                         .requestMatchers("/api/role-access/**").hasRole("ADMIN")
-                        // Only an Admin may view or manage login accounts
+
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        // Everyone who is logged in (Admin or Employee) can view data
+
                         .requestMatchers(HttpMethod.GET, "/api/**").authenticated()
-                        // Create / change / delete: Admin, or any role given "Edit" on that screen
+
                         .requestMatchers(HttpMethod.POST, "/api/**").access(writeAccess())
                         .requestMatchers(HttpMethod.PUT, "/api/**").access(writeAccess())
                         .requestMatchers(HttpMethod.DELETE, "/api/**").access(writeAccess())
